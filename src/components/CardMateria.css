@@ -1,0 +1,227 @@
+.card-materia {
+    width: 300px;
+    height: 180px;
+    background-color: #f5f5f5;
+    margin: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: grid;
+    grid-template-areas: 
+        "nome nome cor"
+        "tempoestudado tempoestudado botao"
+        "relatorios relatorios relatorios";
+    grid-template-rows: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    padding: 15px;
+    transition: transform 0.2s;
+}
+
+.card-materia:hover {
+    transform: translateY(-2px);
+}
+
+/* Agora aplique as áreas grid aos elementos */
+.card-materia h3 {
+    grid-area: nome;
+    margin: 0;
+    align-self: center;
+}
+
+.card-materia-cor {
+    grid-area: cor;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.card-materia-cor span {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+}
+
+.card-materia p:nth-of-type(1) {
+    grid-area: tempoestudado;
+    margin: 0;
+    align-self: center;
+}
+
+.card-materia p:nth-of-type(2) {
+    grid-area: relatorios;
+    margin: 0;
+    text-align: center;
+    align-self: center;
+    cursor: pointer;
+}
+
+/* Se quiser adicionar um botão na área "botao" */
+.card-materia button {
+    grid-area: botao;
+    align-self: center;
+    justify-self: end;
+}
+.conteiner {
+    display: flex;
+    flex-wrap: wrap;
+}  
+/* Card normal */
+.card-materia {
+    width: 300px;
+    height: 180px;
+    background-color: #f5f5f5;
+    margin: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: grid;
+    grid-template-areas: 
+        "nome nome cor"
+        "tempoestudado tempoestudado tempoestudado"
+        "relatorios relatorios relatorios";
+    grid-template-rows: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    padding: 15px;
+    transition: transform 0.2s;
+    cursor: pointer;
+}
+
+.card-materia:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.card-materia h3 {
+    grid-area: nome;
+    margin: 0;
+    align-self: center;
+}
+
+.card-materia-cor {
+    grid-area: cor;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.card-materia-cor span {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+}
+
+.card-materia p:nth-of-type(1) {
+    grid-area: tempoestudado;
+    margin: 0;
+    align-self: center;
+}
+
+.card-materia p:nth-of-type(2) {
+    grid-area: relatorios;
+    margin: 0;
+    text-align: center;
+    align-self: center;
+}
+
+/* Card expandido */
+.card-materia-expanded {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.expanded-content {
+    background: white;
+    padding: 40px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 500px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.close-btn {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    color: #666;
+}
+
+.close-btn:hover {
+    color: #333;
+}
+
+.color-indicator {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    margin: 20px auto;
+    border: 4px solid white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.timer-container {
+    margin: 30px 0;
+}
+
+.timer-display {
+    font-size: 3rem;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    color: #2c5aa0;
+    margin-bottom: 20px;
+}
+
+.timer-controls {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.timer-controls button {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-start {
+    background: #27ae60;
+    color: white;
+}
+
+.btn-start:hover {
+    background: #219653;
+}
+
+.btn-pause {
+    background: #f39c12;
+    color: white;
+}
+
+.btn-pause:hover {
+    background: #e67e22;
+}
+
+.btn-stop {
+    background: #e74c3c;
+    color: white;
+}
+
+.btn-stop:hover {
+    background: #c0392b;
+}
