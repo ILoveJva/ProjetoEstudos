@@ -225,3 +225,103 @@
 .btn-stop:hover {
     background: #c0392b;
 }
+/* Modal de Conteúdo */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.content-modal {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.content-modal h3 {
+    margin: 0 0 15px 0;
+    color: #333;
+    text-align: center;
+}
+
+.content-modal p {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #666;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+}
+
+.form-group textarea,
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+.form-group textarea:focus,
+.form-group input:focus {
+    outline: none;
+    border-color: #2c5aa0;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+}
+
+.btn-save-without {
+    padding: 12px 20px;
+    background: #95a5a6;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    flex: 1;
+}
+
+.btn-save-without:hover {
+    background: #7f8c8d;
+}
+
+.btn-save-with {
+    padding: 12px 20px;
+    background: #2c5aa0;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    flex: 1;
+}
+
+.btn-save-with:hover:not(:disabled) {
+    background: #1e3d6f;
+}
+
+.btn-save-with:disabled {
+    background: #bdc3c7;
+    cursor: not-allowed;
+}

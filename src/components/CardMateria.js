@@ -4,17 +4,22 @@ import './CardMateria.css';
 function CardMateria(props) {
     const [expanded, setExpanded] = useState(false);
     const [timerRunning, setTimerRunning] = useState(false);
-    const [time, setTime] = useState(0); // tempo em segundos da sessão atual
-    const [totalStudiedTime, setTotalStudiedTime] = useState(0); // tempo total estudado
+    const [time, setTime] = useState(0);
+    const [totalStudiedTime, setTotalStudiedTime] = useState(0);
+    const [showContentModal, setShowContentModal] = useState(false);
+    const [studyContent, setStudyContent] = useState('');
+    const [tags, setTags] = useState('');
+    const [hasStarted, setHasStarted] = useState(false);
+    const [showTimer, setShowTimer] = useState(false); // Novo estado para controlar visibilidade do cronômetro
 
-    // Converter tempo do formato "2 horas" para segundos
+    // Converter tempo string para segundos
     const parseTimeToSeconds = (timeString) => {
         if (!timeString) return 0;
         
+        let totalSeconds = 0;
         const hoursMatch = timeString.match(/(\d+)\s*hora/);
         const minutesMatch = timeString.match(/(\d+)\s*min/);
         
-        let totalSeconds = 0;
         if (hoursMatch) totalSeconds += parseInt(hoursMatch[1]) * 3600;
         if (minutesMatch) totalSeconds += parseInt(minutesMatch[1]) * 60;
         
@@ -42,11 +47,22 @@ function CardMateria(props) {
     }, [props.tempoestudado]);
 
     const toggleExpand = () => {
-        setExpanded(!expanded);
+        if (!timerRunning) {
+            setExpanded(!expanded);
+            if (expanded) {
+                // Se está fechando, reseta tudo
+                setTime(0);
+                setHasStarted(false);
+                setTimerRunning(false);
+                setShowTimer(false); // Esconde o cronômetro ao fechar
+            }
+        }
     };
 
     const startTimer = () => {
         setTimerRunning(true);
+        setHasStarted(true);
+        setShowTimer(true); // Mostra o cronômetro ao iniciar
     };
 
     const pauseTimer = () => {
@@ -56,44 +72,80 @@ function CardMateria(props) {
     const stopTimer = () => {
         setTimerRunning(false);
         
-        // Quando para, soma o tempo da sessão ao tempo total
+        if (time > 0) {
+            setShowContentModal(true);
+        } else {
+            setTime(0);
+            setHasStarted(false);
+            setShowTimer(false); // Esconde o cronômetro se tempo for zero
+            setExpanded(false);
+        }
+    };
+
+    const handleSaveWithContent = () => {
         const newTotalTime = totalStudiedTime + time;
         setTotalStudiedTime(newTotalTime);
         
-        // Prepara para enviar ao BD
         const timeData = {
             materiaId: props.id,
             materiaNome: props.nome,
-            tempoSessao: time, // tempo da sessão atual em segundos
-            tempoTotal: newTotalTime, // tempo total acumulado em segundos
-            tempoTotalFormatado: formatSecondsToTime(newTotalTime), // formato legível
+            tempoSessao: time,
+            tempoTotal: newTotalTime,
+            conteudo: studyContent,
+            tags: tags.split(',').map(tag => tag.trim()).filter(tag => tag),
             data: new Date().toISOString()
         };
-        
-        // Aqui você enviaria para o BD
-        console.log('Dados para salvar no BD:', timeData);
-        
-        // Simulação de salvamento - substitua por API call real
+
         saveToDatabase(timeData);
         
-        // Reseta o cronômetro da sessão
+        setShowContentModal(false);
+        setExpanded(false);
         setTime(0);
+        setHasStarted(false);
+        setShowTimer(false); // Esconde o cronômetro após salvar
+        setStudyContent('');
+        setTags('');
     };
 
-    // Simulação de salvamento no BD
+    const handleSaveWithoutContent = () => {
+        const newTotalTime = totalStudiedTime + time;
+        setTotalStudiedTime(newTotalTime);
+        
+        const timeData = {
+            materiaId: props.id,
+            materiaNome: props.nome,
+            tempoSessao: time,
+            tempoTotal: newTotalTime,
+            conteudo: '',
+            tags: [],
+            data: new Date().toISOString()
+        };
+
+        saveToDatabase(timeData);
+        
+        setShowContentModal(false);
+        setExpanded(false);
+        setTime(0);
+        setHasStarted(false);
+        setShowTimer(false); // Esconde o cronômetro após salvar
+    };
+
+    const handleCancel = () => {
+        setShowContentModal(false);
+        setExpanded(false);
+        setTime(0);
+        setHasStarted(false);
+        setTimerRunning(false);
+        setShowTimer(false); // Esconde o cronômetro ao cancelar
+        setStudyContent('');
+        setTags('');
+    };
+
     const saveToDatabase = (timeData) => {
-        // EXEMPLO de como seria a chamada API:
-        /*
-        fetch('/api/study-time', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(timeData)
-        });
-        */
+        const existingData = JSON.parse(localStorage.getItem(`studyTime_${props.id}`) || '[]');
+        const newData = Array.isArray(existingData) ? [...existingData, timeData] : [timeData];
+        localStorage.setItem(`studyTime_${props.id}`, JSON.stringify(newData));
         
-        // Por enquanto, só logamos e atualizamos o localStorage
-        
-        // Se tiver callback do parent, chama para atualizar
         if (props.onTimeUpdate) {
             props.onTimeUpdate(timeData);
         }
@@ -110,7 +162,7 @@ function CardMateria(props) {
         return () => clearInterval(interval);
     }, [timerRunning]);
 
-    // Formatar tempo para HH:MM:SS (cronômetro)
+    // Formatar tempo para HH:MM:SS
     const formatTime = (totalSeconds) => {
         const hours = Math.floor(totalSeconds / 3600);
         const minutes = Math.floor((totalSeconds % 3600) / 60);
@@ -120,38 +172,109 @@ function CardMateria(props) {
 
     if (expanded) {
         return (
-            <div className="card-materia-expanded">
-                <div className="expanded-content">
-                    <button className="close-btn" onClick={toggleExpand}>×</button>
-                    <h2>{props.nome}</h2>
-                    <div className="color-indicator" style={{ backgroundColor: props.cor }}></div>
-                    
-                    <div className="timer-container">
-                        <div className="timer-display">
-                            {formatTime(time)}
-                        </div>
-                        <div className="timer-controls">
-                            {!timerRunning ? (
-                                <button className="btn-start" onClick={startTimer}>
-                                    Iniciar
-                                </button>
+            <>
+                <div className="card-materia-expanded">
+                    <div className="expanded-content">
+                        <button 
+                            className="close-btn" 
+                            onClick={toggleExpand}
+                            disabled={timerRunning}
+                            style={{ 
+                                opacity: timerRunning ? 0.5 : 1,
+                                cursor: timerRunning ? 'not-allowed' : 'pointer'
+                            }}
+                        >
+                            ×
+                        </button>
+                        <h2>{props.nome}</h2>
+                        <div className="color-indicator" style={{ backgroundColor: props.cor }}></div>
+                        
+                        <div className="timer-container">
+                            {/* Cronômetro só aparece se o usuário iniciou */}
+                            {showTimer ? (
+                                <>
+                                    <div className="timer-display">
+                                        {formatTime(time)}
+                                    </div>
+                                    <div className="timer-controls">
+                                        {!timerRunning ? (
+                                            <button className="btn-start" onClick={startTimer}>
+                                                Continuar
+                                            </button>
+                                        ) : (
+                                            <button className="btn-pause" onClick={pauseTimer}>
+                                                Pausar
+                                            </button>
+                                        )}
+                                        <button className="btn-stop" onClick={stopTimer}>
+                                            Parar e Salvar
+                                        </button>
+                                    </div>
+                                </>
                             ) : (
-                                <button className="btn-pause" onClick={pauseTimer}>
-                                    Pausar
-                                </button>
+                                /* Tela inicial - antes de iniciar */
+                                <div className="timer-init-screen">
+                                    <div className="init-message">
+                                    </div>
+                                    <div className="timer-controls">
+                                        <button className="btn-start" onClick={startTimer}>
+                                            Iniciar Estudo
+                                        </button>
+                                    </div>
+                                </div>
                             )}
-                            <button className="btn-stop" onClick={stopTimer}>
-                                Parar e Salvar
-                            </button>
                         </div>
-                    </div>
-                    
-                    <div className="time-info">
-                        <p><strong>Tempo desta sessão:</strong> {formatTime(time)}</p>
-                        <p><strong>Tempo total estudado:</strong> {formatSecondsToTime(totalStudiedTime)}</p>
+                        
+                        <div className="time-info">
+                            <p><strong>Tempo total estudado:</strong> {formatSecondsToTime(totalStudiedTime)}</p>
+                        </div>
+
+                        {timerRunning}
                     </div>
                 </div>
-            </div>
+
+                {/* Modal de Conteúdo Estudado */}
+                {showContentModal && (
+                    <div className="modal-overlay">
+                        <div className="content-modal">
+                            <h3>Registrar Conteúdo Estudado</h3>
+                            <p>Você estudou <strong>{props.nome}</strong> por <strong>{formatTime(time)}</strong></p>
+                            
+                            <div className="form-group">
+                                <label>O que você estudou?</label>
+                                <textarea
+                                    value={studyContent}
+                                    onChange={(e) => setStudyContent(e.target.value)}
+                                    placeholder="Descreva brevemente o conteúdo estudado..."
+                                    rows="4"
+                                />
+                            </div>
+                        
+                            <div className="modal-buttons">
+                                <button 
+                                    className="btn-cancel"
+                                    onClick={handleCancel}
+                                >
+                                    Cancelar
+                                </button>
+                                <button 
+                                    className="btn-save-without"
+                                    onClick={handleSaveWithoutContent}
+                                >
+                                    Salvar Sem Conteúdo
+                                </button>
+                                <button 
+                                    className="btn-save-with"
+                                    onClick={handleSaveWithContent}
+                                    disabled={!studyContent.trim()}
+                                >
+                                    Salvar com Conteúdo
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </>
         );
     }
 
@@ -162,7 +285,6 @@ function CardMateria(props) {
                 <span style={{ backgroundColor: props.cor }}></span>
             </div>
             <p>{formatSecondsToTime(totalStudiedTime)}</p>
-            <p>Relatorios &DownArrow;</p>
         </div>
     );
 }

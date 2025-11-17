@@ -1,5 +1,5 @@
+import { coursesData as materias } from '../data/coursesData';
 import CardMateria from '../components/CardMateria';
-import { coursesData as materias } from '../data/cousersData';
 
 function Cursos() {
     const cardsMaterias = [];
